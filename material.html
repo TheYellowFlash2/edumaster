@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>EduMaster Learning</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      background-color: #f9f3e5;
+      color: #4e342e;
+    }
+    header {
+      background-color: #d7ccc8;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 1.6em;
+      font-weight: bold;
+      color: #6d4c41;
+    }
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+    }
+    #loginBtn {
+      padding: 8px 16px;
+      background-color: #ffca28;
+      border: none;
+      border-radius: 4px;
+      color: #4e342e;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #userMenu {
+      position: relative;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    #usernameDisplay {
+      cursor: pointer;
+      font-weight: bold;
+      color: #6d4c41;
+    }
+    #userAvatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+    #dropdown {
+      display: none;
+      position: absolute;
+      top: 36px;
+      right: 0;
+      background: white;
+      border: 1px solid #ccc;
+      padding: 6px;
+    }
+    #dropdown button,
+    #dropdown a {
+      display: block;
+      margin: 5px 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      color: #6d4c41;
+    }
+    main {
+      padding: 20px;
+    }
+    #chatSection {
+      display: none;
+      background: #fff3e0;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+    #chatBox {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 8px;
+      background: #ffffff;
+      margin-bottom: 10px;
+    }
+    .chatMessage {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+      position: relative;
+    }
+    .chatMessage img.avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .chatText {
+      flex: 1;
+    }
+    .mention {
+      background-color: yellow;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      width: 75%;
+      padding: 5px;
+    }
+    button {
+      padding: 6px 10px;
+    }
+    .theme-dark {
+      background-color: #212121 !important;
+      color: #eeeeee !important;
+    }
+    .theme-dark #chatBox {
+      background-color: #333;
+      color: #eee;
+    }
+    .edit-btn, .delete-btn {
+      margin-left: 5px;
+      font-size: 0.8em;
+      cursor: pointer;
+      color: #999;
+    }
+    #themeToggle {
+      cursor: pointer;
+      font-size: 1em;
+      padding: 4px 10px;
+      background: #e0e0e0;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">EduMaster Learning</div>
+    <div class="top-right">
+      <div id="themeToggle">🌙 Theme</div>
+      <button id="loginBtn">Log In</button>
+      <div id="userMenu">
+        <img id="userAvatar" src="" alt="User Avatar" />
+        <div id="usernameDisplay"></div>
+        <div id="dropdown">
+          <a href="settings.html">Settings</a>
+          <button id="logoutBtn">Log Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <h1>Welcome to EduMaster Learning</h1>
+    <p>EduMaster is your trusted online learning platform for core subjects. Explore resources in Math, Science, History, and more.</p>
+
+    <section id="chatSection">
+      <h2>Class Chat</h2>
+      <div id="chatBox"></div>
+      <input type="text" id="chatInput" placeholder="Type your message or /giphy cat..." />
+      <button id="sendBtn">Send</button>
+   
+    </section>
+  </main>
+  
+
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
+    import { getDatabase, ref, push, onChildAdded, set, get, update, remove } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD31k6XKHpftf-IqLEgfMvtAcI8OQyBoqI",
+      authDomain: "school-test-91012.firebaseapp.com",
+      projectId: "school-test-91012",
+      storageBucket: "school-test-91012.appspot.com",
+      messagingSenderId: "906695439647",
+      appId: "1:906695439647:web:f19c5369600e319a30ec2a",
+      measurementId: "G-Y15HXKENSD",
+      databaseURL: "https://school-test-91012-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const userMenu = document.getElementById("userMenu");
+    const usernameDisplay = document.getElementById("usernameDisplay");
+    const userAvatar = document.getElementById("userAvatar");
+    const dropdown = document.getElementById("dropdown");
+    const chatBox = document.getElementById("chatBox");
+    const chatInput = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const chatSection = document.getElementById("chatSection");
+    const themeToggle = document.getElementById("themeToggle");
+
+    let currentUsername = "";
+    let currentAvatar = "";
+
+    loginBtn.onclick = () => window.location.href = "login.html";
+    usernameDisplay.onclick = () => {
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    };
+    logoutBtn.onclick = () => {
+      signOut(auth).then(() => {
+        localStorage.removeItem("username");
+        localStorage.removeItem("avatarUrl");
+        window.location.reload();
+      });
+    };
+
+    themeToggle.onclick = () => {
+      document.body.classList.toggle("theme-dark");
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const uid = user.uid;
+        const snapshot = await get(ref(db, `users/${uid}`));
+        const profile = snapshot.val();
+        const username = profile?.username || user.email.split("@")[0];
+        const avatar = profile?.avatarUrl || "https://via.placeholder.com/30";
+
+        currentUsername = username;
+        currentAvatar = avatar;
+
+        localStorage.setItem("username", username);
+        localStorage.setItem("avatarUrl", avatar);
+
+        usernameDisplay.textContent = username;
+        userAvatar.src = avatar;
+        loginBtn.style.display = "none";
+        userMenu.style.display = "flex";
+        chatSection.style.display = "block";
+
+        push(ref(db, "chat"), {
+          user: "SYSTEM",
+          message: `${username} is online`,
+          timestamp: Date.now()
+        });
+
+        enableChat(username, avatar);
+        Notification.requestPermission();
+      } else {
+        loginBtn.style.display = "inline-block";
+        userMenu.style.display = "none";
+        chatSection.innerHTML = '<p>Please <a href="login.html">log in</a> to use the chat.</p>';
+      }
+    });
+
+    function enableChat(username, avatarUrl) {
+      function sendMessage() {
+        const msg = chatInput.value.trim();
+        if (!msg) return;
+
+        if (msg.startsWith("/giphy ")) {
+          const searchTerm = msg.slice(7).trim();
+          fetch(`https://api.giphy.com/v1/gifs/search?api_key=JvwIORzGWRgp78poLapcnB6YMmJuaMlE&q=${encodeURIComponent(searchTerm)}&limit=1`)
+            .then(res => res.json())
+            .then(data => {
+              const gifUrl = data?.data?.[0]?.images?.downsized_medium?.url;
+              if (gifUrl) {
+                push(ref(db, "chat"), {
+                  user: username,
+                  message: `<img src="${gifUrl}" alt="GIF" style="max-width:200px"/>`,
+                  avatarUrl,
+                  timestamp: Date.now()
+                });
+              }
+            });
+        } else {
+          push(ref(db, "chat"), {
+            user: username,
+            message: msg,
+            avatarUrl,
+            timestamp: Date.now()
+          });
+        }
+
+        chatInput.value = "";
+      }
+
+      sendBtn.onclick = sendMessage;
+      chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") sendMessage();
+      });
+
+      onChildAdded(ref(db, "chat"), (snapshot) => {
+        const data = snapshot.val();
+        const msgKey = snapshot.key;
+        const div = document.createElement("div");
+        div.classList.add("chatMessage");
+
+        if (data.user === "SYSTEM") {
+          div.innerHTML = `<em>${data.message}</em>`;
+        } else {
+          let messageHtml = data.message.replace(new RegExp(`@${username}\\b`, "gi"), `<span class="mention">@${username}</span>`);
+          div.innerHTML = `
+            <img class="avatar" src="${data.avatarUrl || 'https://via.placeholder.com/30'}" />
+            <div class="chatText">
+              <strong>${data.user}</strong>: <span class="msg" data-key="${msgKey}">${messageHtml}</span>
+            </div>`;
+
+          if (data.user === username) {
+            const editBtn = document.createElement("span");
+            editBtn.textContent = "✎";
+            editBtn.classList.add("edit-btn");
+            editBtn.onclick = () => {
+              const newMsg = prompt("Edit your message:", data.message);
+              if (newMsg) {
+                update(ref(db, `chat/${msgKey}`), { message: newMsg });
+              }
+            };
+
+            const deleteBtn = document.createElement("span");
+            deleteBtn.textContent = "🗑";
+            deleteBtn.classList.add("delete-btn");
+            deleteBtn.onclick = () => {
+              if (confirm("Delete this message?")) remove(ref(db, `chat/${msgKey}`));
+              div.remove();
+            };
+
+            div.querySelector(".chatText").appendChild(editBtn);
+            div.querySelector(".chatText").appendChild(deleteBtn);
+          }
+        }
+
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        if (Notification.permission === "granted" && data.user !== username) {
+          new Notification(`${data.user}: ${data.message.replace(/<[^>]+>/g, '')}`);
+        }
+      });
+    }
+    
+    
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Settings - EduMaster</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f9f3e5;
+      color: #4e342e;
+      padding: 20px;
+    }
+    h1, h2 {
+      color: #6d4c41;
+    }
+    input, button, a.button-link {
+      display: block;
+      margin: 10px 0;
+      padding: 8px;
+      font-size: 1em;
+    }
+    button, a.button-link {
+      background-color: #ffca28;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #4e342e;
+      font-weight: bold;
+      text-align: center;
+      text-decoration: none;
+    }
+    button.danger {
+      background-color: #e53935;
+      color: white;
+    }
+    label {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Update Profile</h1>
+  <a href="#" id="backButton" class="button-link">⬅ Back to Material</a>
+
+  <label for="usernameInput">Username:</label>
+  <input type="text" id="usernameInput" placeholder="Enter your username" />
+
+  <label for="avatarInput">Avatar Image URL:</label>
+  <input type="text" id="avatarInput" placeholder="Paste your avatar image URL" />
+
+  <button id="saveBtn">Save Profile</button>
+
+  <h2>Danger Zone</h2>
+  <button id="deleteAccountBtn" class="danger">Delete Account</button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD31k6XKHpftf-IqLEgfMvtAcI8OQyBoqI",
+      authDomain: "school-test-91012.firebaseapp.com",
+      projectId: "school-test-91012",
+      storageBucket: "school-test-91012.appspot.com",
+      messagingSenderId: "906695439647",
+      appId: "1:906695439647:web:f19c5369600e319a30ec2a",
+      measurementId: "G-Y15HXKENSD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const usernameInput = document.getElementById("usernameInput");
+    const avatarInput = document.getElementById("avatarInput");
+    const saveBtn = document.getElementById("saveBtn");
+    const backButton = document.getElementById("backButton");
+    const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+
+    let currentUser = null;
+    let userRef = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        userRef = ref(db, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          if (data.username) usernameInput.value = data.username;
+          if (data.avatarUrl) avatarInput.value = data.avatarUrl;
+        }
+
+        saveBtn.onclick = saveProfile;
+        backButton.onclick = (e) => {
+          e.preventDefault();
+          saveProfile(() => {
+            window.location.href = "material.html";
+          });
+        };
+
+        deleteAccountBtn.onclick = () => {
+          if (confirm("Are you sure you want to delete your account? This cannot be undone.")) {
+            set(userRef, null).then(() => {
+              user.delete().then(() => {
+                alert("Account deleted successfully.");
+                window.location.href = "signup.html";
+              }).catch(error => {
+                alert("Failed to delete account: " + error.message);
+              });
+            });
+          }
+        };
+
+      } else {
+        alert("Please log in first.");
+        window.location.href = "login.html";
+      }
+    });
+
+    function saveProfile(callback) {
+      const username = usernameInput.value.trim();
+      const avatarUrl = avatarInput.value.trim();
+
+      if (!username || !avatarUrl) {
+        alert("Please fill in both fields.");
+        return;
+      }
+
+      set(userRef, {
+        username: username,
+        avatarUrl: avatarUrl
+      }).then(() => {
+        if (callback) callback();
+        else alert("Profile saved successfully!");
+      }).catch((error) => {
+        alert("Failed to save profile: " + error.message);
+      });
+    }
+  </script>
+</body>
+</html>

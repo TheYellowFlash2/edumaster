@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduMaster Learning</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      background: #fff8f0;
+      color: #3e2f1c;
+      line-height: 1.6;
+    }
+
+    header {
+      background-color: #6b4f3b;
+      color: #f9e79f;
+      padding: 30px 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .btn-top {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background-color: #f4c542;
+      border: none;
+      color: #3e2f1c;
+      font-size: 16px;
+      padding: 10px 18px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .btn-top:hover {
+      background-color: #e0af18;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      color: #86592d;
+      border-bottom: 2px solid #d3b17c;
+      padding-bottom: 5px;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    footer {
+      background: #f4e2cd;
+      color: #4b3b29;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .card {
+      background-color: #fffdf9;
+      border: 1px solid #e7d6ba;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <button class="btn-top" onclick="getMaterial()">Get Material</button>
+    <h1>EduMaster Learning</h1>
+    <p>Accessible education. Adaptive curriculum. Anywhere.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>About EduMaster</h2>
+      <p>
+        EduMaster Learning is a digital education platform built to provide high-quality, standards-aligned content for learners from elementary to high school. Our vision is to make education accessible, engaging, and personalized for every student, everywhere.
+      </p>
+      <p>
+        With a library of over 2,000 lessons, interactive exercises, and real-time feedback tools, EduMaster helps students master skills at their own pace. Whether you're at home, in the classroom, or learning on the go — EduMaster is your companion in learning.
+      </p>
+    </section>
+
+    <section>
+      <h2>Subjects We Cover</h2>
+      <ul>
+        <li><strong>Mathematics:</strong> Arithmetic, Algebra, Geometry, Data & Graphing</li>
+        <li><strong>Science:</strong> Life Science, Earth Science, Chemistry, Physics</li>
+        <li><strong>Language Arts:</strong> Reading, Writing, Grammar, Vocabulary</li>
+        <li><strong>Social Studies:</strong> History, Civics, Geography, World Cultures</li>
+        <li><strong>Enrichment:</strong> Art, Coding Basics, Financial Literacy, Health</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Personalized Learning Paths</h2>
+      <p>
+        Our smart recommendation system adapts content to each learner’s pace and performance. Students can track their mastery levels, set learning goals, and receive badges for milestones achieved.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Tools for Educators</h2>
+      <p>
+        Teachers can assign lessons, monitor progress, and provide differentiated support using EduMaster’s educator dashboard. Detailed analytics help identify learning gaps and opportunities.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Why EduMaster?</h2>
+      <ul>
+        <li>Curriculum aligned with national standards</li>
+        <li>Multilingual support for diverse learners</li>
+        <li>Gamified elements for better engagement</li>
+        <li>Free access for public school classrooms</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2025 EduMaster Learning. All rights reserved.
+  </footer>
+
+  <script>
+    function getMaterial() {
+      const code = prompt("Enter your access code to download material:");
+      if (code === "1234") {
+        window.location.href = "material.html";
+      } else {
+        alert("Invalid code. Please try again.");
+      }
+    }
+  </script>
+
+</body>
+</html>
